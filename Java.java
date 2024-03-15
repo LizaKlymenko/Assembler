@@ -31,5 +31,13 @@ public class Java {
         for (int value : binaryValues) {
             System.out.println(value);
         }
+        // обчислення медіани та середнього значення
+        int median = n % 2 == 0 ? (binaryValues[n/2 - 1] + binaryValues[n/2]) / 2 : binaryValues[n/2];
+        int sum = Arrays.stream(binaryValues).sum();
+        int average = sum / n;
+        // виведення результатів
+        System.out.println("Median: " + median);
+        System.out.println("Average: " + average);
+
     }
 }
