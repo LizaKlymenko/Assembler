@@ -16,5 +16,20 @@ public class Java {
             String binaryValue = Integer.toBinaryString(decimalValue < 0 ? Integer.MAX_VALUE : decimalValue);
             binaryValues[i] = Integer.parseInt(binaryValue, 2);
         }
+        // сортування алгоритмом bubble sort
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = 0; j < n - i - 1; j++) {
+                if (binaryValues[j] > binaryValues[j+1]) {
+                    int temp = binaryValues[j];
+                    binaryValues[j] = binaryValues[j+1];
+                    binaryValues[j+1] = temp;
+                }
+            }
+        }
+        // виведення відсортованих значень
+        System.out.println("Sorted binary values:");
+        for (int value : binaryValues) {
+            System.out.println(value);
+        }
     }
 }
