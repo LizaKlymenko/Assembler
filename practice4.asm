@@ -9,7 +9,7 @@
     
 .code
 start:
-    ; Иниціализація сегмента данных
+    ; Инициализация сегмента данных
     mov ax, @data
     mov ds, ax
 
@@ -20,36 +20,36 @@ start:
     xor si, si
     read_next:
         mov ah, 3Fh
-        mov bx, 0h  ; ввід даних з stdin 
+        mov bx, 0h  ; stdin handle
         mov cx, 1   ; 1 byte to read
-        mov dx, offset oneChar   ;
-        int 21h          ;Виклик DOS-служби для чит символу
+        mov dx, offset oneChar   ; read to ds:dx 
+        int 21h   ;  ax = number of bytes read
 
-        or ax, ax;  ax = number of bytes read
+        or ax, ax
         je stop_reading
 
-        cmp oneChar, ' '; Перевірка, чи символ - пробіл
+        cmp oneChar, ' '
         jz add_number_to_array
 
-        cmp oneChar, 13 ; перевірка чи це CR
+        cmp oneChar, 13 ; CR
         je add_number_to_array
         cmp oneChar, 10 ; LF
         je add_number_to_array
-;додала числа до масиву array, які були введені з консолі
-        cmp oneChar, '0'; порівнюємо значн
-        jb jump_over ;Перескочуємо, якщо oneChar менше '0'
+
+        cmp oneChar, '0'
+        jb jump_over
 
         cmp oneChar, '9'
         ja jump_over
 
 
-        mov ax, array[di] ;Завантажуємо значення з масиву в регістр ax
+        mov ax, array[di]
 
         mov cl, oneChar
         
-        sub cl, '0';Віднімаємо ASCII-код '0' від oneChar для десят-формат
+        sub cl, '0'
         mov bx, 10
-        mul bx ; ax множимо на bx
+        mul bx
         add ax, cx
 
         jump_over:
@@ -58,11 +58,11 @@ start:
             jmp read_next
             
         add_number_to_array:
-            cmp si, '1' ; Перевіряємо, чи вже було додано число до масиву
+            cmp si, '1'
             jnz no_number_here
 
             nextNum:
-                add di, 2 ; додаємо до індексу масиву,  двобайтові елементи
+                add di, 2
                 mov array[di], 0
 
             no_number_here:
@@ -73,24 +73,24 @@ start:
 
     cmp si, '1' 
     jnz i12
-
+    
     add di, 2
 
     i12:
     mov cx, 2
     mov ax, di
-    div cx ;Ділення значення di на 2
+    div cx
 
     endss:
-    mov size_of_array, ax ; збереження результату ділення у змінну 
+    mov size_of_array, ax
 
-    xor di, di ; Обнулення всіх регістрів 
+    xor di, di
     xor si, si
     xor ax, ax
     xor bx, bx
     xor dx, dx
     xor cx, cx
-    call BubbleSort ;процедура бульбашкового сортування
+    call BubbleSort
     call find_middle_element_in_array
 
     mov ah, 02h
@@ -109,3 +109,97 @@ start:
     mov ax, 4C00h
     int 21h
 
+
+    ; output single number which located in register ax
+    out_one_number PROC
+        first:  
+                xor bx, bx
+                xor     cx, cx
+                mov     bx, 10 ; основание сс. 10 для десятеричной и т.п.
+                mov     bx, 10 ; system
+            second:
+                xor     dx,dx
+                div     bx
+
+                push    dx
+                inc     cx
+                test    ax, ax
+                jnz     second
+                mov     ah, 02h
+            third:
+                pop     dx
+                add     dl, '0'
+                int     21h
+                loop    third
+        ret
+    out_one_number ENDP
+
+    ; print avarage number of the array
+    findin_avarage_in_array proc
+        xor di, di
+        xor eax, eax
+        xor ebx, ebx
+        mov si, word ptr size_of_array
+
+        countAv:
+            mov bx, array[di]
+
+            add eax, ebx
+
+            add di, 2
+            dec si
+            cmp si, 0
+            jbe exit2
+            jmp countAv
+
+        exit2:
+            xor edx, edx
+            div size_of_array
+
+            xor ebx, ebx
+            call out_one_number
+            xor eax, eax
+
+            ret
+    findin_avarage_in_array ENDP
+
+    ;bubble sort for array
+    BubbleSort proc
+        mov cx, word ptr size_of_array
+        dec cx
+        outerLoop:
+            push cx
+            lea si, array
+        innerLoop:
+            mov ax, [si]
+            cmp ax, [si + 2]
+            jl nextStep
+            xchg [si + 2], ax
+            mov [si], ax
+        nextStep:
+            add si, 2
+            loop innerLoop
+            pop cx
+            loop outerLoop
+        ret
+    BubbleSort ENDP
+
+    ; опис 
+    find_middle_element_in_array PROC
+        xor dx, dx
+        mov bx, 2
+        mov ax, word ptr size_of_array
+        
+        div bx
+        mul bx
+        mov di, ax
+        mov ax, array[di]
+        xor di, di
+        xor bx, bx
+
+        call out_one_number
+
+        ret
+    find_middle_element_in_array ENDP
+
+end start
